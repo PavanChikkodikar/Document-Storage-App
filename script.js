@@ -14,7 +14,59 @@ function handleFileSelect(event) {
     saveFilesToLocal(fileList);
 }
 
-// ... (unchanged)
+
+document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+function handleFileSelect(event) {
+    const fileList = event.target.files;
+    const fileListContainer = document.getElementById('fileList');
+
+    // Display the list of uploaded files
+    for (const file of fileList) {
+        if (validateFile(file)) {
+            const listItem = createFileListItem(file);
+            fileListContainer.appendChild(listItem);
+        }
+    }
+
+    // Save all files to local storage (both existing and new ones)
+    const allFiles = getAllFilesFromLocalStorage();
+    const newFiles = Array.from(fileList);
+    const updatedFiles = [...allFiles, ...newFiles];
+    saveFilesToLocal(updatedFiles);
+}
+
+
+// Function to get all files from local storage
+function getAllFilesFromLocalStorage() {
+    return JSON.parse(localStorage.getItem('uploadedFiles')) || [];
+}
+
+// Function to save files to local storage
+function saveFilesToLocal(files) {
+    localStorage.setItem('uploadedFiles', JSON.stringify(files));
+}
+
+
+function validateFile(file) {
+    // File type validation
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file type. Please upload images (JPEG, PNG, GIF), PDF, or Word documents.');
+        return false;
+    }
+
+    // File size limit validation (in bytes)
+    const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
+    if (file.size > maxSizeInBytes) {
+        alert('File size exceeds the limit of 5MB. Please upload a smaller file.');
+        return false;
+    }
+
+    return true;
+}
+
+
 
 function createFileListItem(file) {
     const listItem = document.createElement('div');
